@@ -183,7 +183,7 @@ void sysbiosRefreshMain(uchar *ptr)
 		CheckDlgButton(sysbiosTabList[0].hwnd, IDC_CHECKSUM_METHOD_SUB, BST_CHECKED);
 		
 		sptr = ptr + 0x1FFFF;
-		sprintf(buf, "%02X", *sptr);
+		snprintf(buf,  sizeof(buf), "%02X", *sptr);
 		SetDlgItemText(sysbiosTabList[0].hwnd, IDC_CHECKSUM_VALUE, buf);
 
 		csum = sysbiosCalcBiosChecksum(ptr, 0x10000, 0x1FFFE, METHOD_SUB);

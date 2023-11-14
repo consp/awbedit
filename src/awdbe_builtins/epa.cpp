@@ -223,10 +223,10 @@ void epaRefreshDialog(HWND hwnd, fileEntry *fe)
 			break;
 	}
 
-	sprintf(buf, "%d", width);
+	snprintf(buf,  sizeof(buf), "%d", width);
 	SetDlgItemText(hwnd, IDC_EPA_WIDTH, buf);
 
-	sprintf(buf, "%d", height);
+	snprintf(buf,  sizeof(buf), "%d", height);
 	SetDlgItemText(hwnd, IDC_EPA_HEIGHT, buf);
 
 	// delete the current groupbox, preview bitmap, and DC... if they exist

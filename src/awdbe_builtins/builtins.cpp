@@ -349,7 +349,7 @@ BOOL CALLBACK aboutBoxProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam
     switch (message)
     {
         case WM_INITDIALOG:
-			sprintf(buf, "Compiled on %s at %s", __DATE__, __TIME__);
+			snprintf(buf,  sizeof(buf), "Compiled on %s at %s", __DATE__, __TIME__);
 			SetDlgItemText(hDlg, IDC_TEXT_COMPILETIME, buf);
             return TRUE;
 

@@ -1,0 +1,202 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{193bee13-0ce0-4f1b-ad01-59cb63ab18ef}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
+    </Filter>
+    <Filter Include="Source Files\LZH engine">
+      <UniqueIdentifier>{5cb6a490-87cd-411e-afaa-2f85e54a0c00}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{a07f5370-3bec-4e44-9b66-5852b48d6a4e}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{0feacda8-29e2-42b3-bf6e-7d1867cd5c01}</UniqueIdentifier>
+      <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
+    </Filter>
+    <Filter Include="Library Files">
+      <UniqueIdentifier>{ea7edb3c-5aed-4dc5-a5d3-448ef6aacfb1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="lzhEngine\decode.cpp">
+      <Filter>Source Files\LZH engine</Filter>
+    </ClCompile>
+    <ClCompile Include="lzhEngine\encode.cpp">
+      <Filter>Source Files\LZH engine</Filter>
+    </ClCompile>
+    <ClCompile Include="lzhEngine\huf.cpp">
+      <Filter>Source Files\LZH engine</Filter>
+    </ClCompile>
+    <ClCompile Include="lzhEngine\io.cpp">
+      <Filter>Source Files\LZH engine</Filter>
+    </ClCompile>
+    <ClCompile Include="lzhEngine\maketbl.cpp">
+      <Filter>Source Files\LZH engine</Filter>
+    </ClCompile>
+    <ClCompile Include="lzhEngine\maketree.cpp">
+      <Filter>Source Files\LZH engine</Filter>
+    </ClCompile>
+    <ClCompile Include="bios.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="config.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lzh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="plugin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="popupDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="popupMenu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="lzhEngine\lzhEngine.h">
+      <Filter>Source Files\LZH engine</Filter>
+    </ClInclude>
+    <ClInclude Include="awdbe_exports.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="awdbedit_ids.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bios.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lzh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="main.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="plugin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="popupDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="popupMenu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="action_extract.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="action_extract_all.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="action_hexedit.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="action_insert.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="action_remove.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="action_replace.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="background.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="block_blue.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="block_cyan.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="block_dkblue.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="block_dkcyan.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="block_dkgreen.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="block_dkgrey.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="block_dkmagenta.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="block_dkred.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="block_dkyellow.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="block_green.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="block_grey.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="block_magenta.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="block_red.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="block_yellow.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="chip.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="file_exit.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="file_open.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="file_properties.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="file_save.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="help_about.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="icon2.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="icon7.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="icon8.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="option_config.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="awdbedit.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

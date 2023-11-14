@@ -971,7 +971,7 @@ BOOL CALLBACK sysbiosConfigMenuFunc(HWND hdlg, UINT message, WPARAM wParam, LPAR
 							SetDlgItemText(hdlg, IDC_MENU_HELP, me->helpText);
 
 				// ***START DEBUG CODE***
-							sprintf(buf, "%04X", me->menuPtr->status);
+							snprintf(buf,  sizeof(buf), "%04X", me->menuPtr->status);
 							SetDlgItemText(hdlg, IDC_MENU_STATUS, buf);
 				// ***END DEBUG CODE***
 
@@ -989,10 +989,10 @@ BOOL CALLBACK sysbiosConfigMenuFunc(HWND hdlg, UINT message, WPARAM wParam, LPAR
 								CheckDlgButton(hdlg, IDC_MENU_ACTIVE, BST_CHECKED);
 
 							// set x/y position
-							sprintf(buf, "%d", me->menuPtr->xPosition);
+							snprintf(buf,  sizeof(buf), "%d", me->menuPtr->xPosition);
 							SetDlgItemText(hdlg, IDC_MENU_POSITION_X, buf);
 
-							sprintf(buf, "%d", me->menuPtr->yPosition);
+							snprintf(buf,  sizeof(buf), "%d", me->menuPtr->yPosition);
 							SetDlgItemText(hdlg, IDC_MENU_POSITION_Y, buf);
 
 							// nuke all items in *both* combo boxes
@@ -1014,17 +1014,17 @@ BOOL CALLBACK sysbiosConfigMenuFunc(HWND hdlg, UINT message, WPARAM wParam, LPAR
 							SendMessage(hItemSetup, CB_SETCURSEL, me->menuPtr->setupDefaultIdx, 0);
 
 							// show CMOS data
-							sprintf(buf, "%02X", me->menuPtr->cmosIndex);
+							snprintf(buf,  sizeof(buf), "%02X", me->menuPtr->cmosIndex);
 							SetDlgItemText(hdlg, IDC_MENU_CMOS_INDEX, buf);
 
-							sprintf(buf, "%04X", me->menuPtr->cmosMask);
+							snprintf(buf,  sizeof(buf), "%04X", me->menuPtr->cmosMask);
 							SetDlgItemText(hdlg, IDC_MENU_CMOS_MASK, buf);
 
 							// show chipset register data
-							sprintf(buf, "%04X", me->menuPtr->chipRegIndex);
+							snprintf(buf,  sizeof(buf), "%04X", me->menuPtr->chipRegIndex);
 							SetDlgItemText(hdlg, IDC_MENU_CHIPREG_INDEX, buf);
 
-							sprintf(buf, "%04X", me->menuPtr->chipRegMask);
+							snprintf(buf,  sizeof(buf), "%04X", me->menuPtr->chipRegMask);
 							SetDlgItemText(hdlg, IDC_MENU_CHIPREG_MASK, buf);
 							break;
 					}
@@ -1145,7 +1145,7 @@ void sysbiosRefreshMenu(uchar *ptr)
 				}
 
 				// assign a default name, just in case we don't find anything..
-				sprintf(buf, "Page %d", pg);
+				snprintf(buf,  sizeof(buf), "Page %d", pg);
 
 				// iterate through the menu string until we reach a POS byte, or a terminator
 				done = FALSE;

@@ -35,8 +35,8 @@ static char progName[256], progSubName[256];
 
 void configInit(char *name, char *subname)
 {
-	strncpy(progName, name, 256);
-	strncpy(progSubName, subname, 256);
+	strncpy_s(progName, name, 256);
+	strncpy_s(progSubName, subname, 256);
 
 	progName[255]	 = 0;
 	progSubName[255] = 0;

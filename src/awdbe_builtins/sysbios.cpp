@@ -118,7 +118,7 @@ void sysbiosRecalcChecksum(bool showErr)
 			// update checksum with valid one
 			*sptr = csum;
 		
-			sprintf(buf, "%02X", csum);
+			snprintf(buf,  sizeof(buf), "%02X", csum);
 			SetDlgItemText(sysbiosTabList[0].hwnd, IDC_CHECKSUM_VALUE, buf);
 			SetDlgItemText(sysbiosTabList[0].hwnd, IDC_CHECKSUM_RESULT, "Pass");
 
@@ -126,10 +126,10 @@ void sysbiosRecalcChecksum(bool showErr)
 			awdbeSetModified(myID);
 		}
 
-		sprintf(buf, "%05X", from);
+		snprintf(buf,  sizeof(buf), "%05X", from);
 		SetDlgItemText(sysbiosTabList[0].hwnd, IDC_CHECKSUM_RANGE_START, buf);
 
-		sprintf(buf, "%05X", to);
+		snprintf(buf,  sizeof(buf), "%05X", to);
 		SetDlgItemText(sysbiosTabList[0].hwnd, IDC_CHECKSUM_RANGE_END, buf);
 	}
 	else
@@ -328,7 +328,7 @@ void sysbiosUpdateLimit(HWND hdlg, int id, int curlen, int maxlen)
 {
 	char buf[32];
 
-	sprintf(buf, "(%d/%d)", curlen, maxlen);
+	snprintf(buf,  sizeof(buf), "(%d/%d)", curlen, maxlen);
 
 	switch (id)
 	{
@@ -372,13 +372,13 @@ void sysbiosRefreshDialog(HWND hwnd, fileEntry *fe)
 	// refresh file info
 	SetDlgItemText(sysbiosTabList[0].hwnd, IDC_FILENAME, fe->name);
 
-	sprintf(buf, "%04X", fe->type);
+	snprintf(buf,  sizeof(buf), "%04X", fe->type);
 	SetDlgItemText(sysbiosTabList[0].hwnd, IDC_FILE_ID, buf);
 
-	sprintf(buf, "%d", fe->size);
+	snprintf(buf,  sizeof(buf), "%d", fe->size);
 	SetDlgItemText(sysbiosTabList[0].hwnd, IDC_FILE_SIZE, buf);
 
-	sprintf(buf, "%08X", fe->offset);
+	snprintf(buf,  sizeof(buf), "%08X", fe->offset);
 	SetDlgItemText(sysbiosTabList[0].hwnd, IDC_FILE_OFFSET, buf);
 
 	// refresh main panel
@@ -438,17 +438,17 @@ awdbeBIOSVersion sysbiosGetVersion(uchar *sptr, int len)
 
 	while (len--)
 	{
-		if (!memicmp(sptr, "v4.51PG", 7))
+		if (!strncmp(reinterpret_cast<char*>(sptr), "v4.50PG", 7) || !strncmp(reinterpret_cast<char*>(sptr), "v4.51PG", 7))
 		{
 			vers = awdbeBIOSVer451PG;
 			len  = 0;
 		}
-		else if (!memicmp(sptr, "v6.00PG", 7))
+		else if (!strncmp(reinterpret_cast<char*>(sptr), "v6.00PG", 7))
 		{
 			vers = awdbeBIOSVer600PG;
 			len  = 0;
 		}
-		else if (!memicmp(sptr, "v6.0", 4))
+		else if (!strncmp(reinterpret_cast<char*>(sptr), "v6.0", 4))
 		{
 			vers = awdbeBIOSVer60;
 			len  = 0;

@@ -75,23 +75,23 @@ BOOL CALLBACK ModifyChipsetFunc(HWND hdlg, UINT message, WPARAM wParam, LPARAM l
 	{
 		case WM_INITDIALOG:
 			SendMessage(GetDlgItem(hdlg, IDC_MODIFY_INDEX), EM_SETLIMITTEXT, 2, 0);
-			sprintf(buf, "%02X", modifyChipsetPtr->index);
+			snprintf(buf,  sizeof(buf), "%02X", modifyChipsetPtr->index);
 			SetDlgItemText(hdlg, IDC_MODIFY_INDEX, buf);
 
 			SendMessage(GetDlgItem(hdlg, IDC_MODIFY_DEVICE), EM_SETLIMITTEXT, 2, 0);
-			sprintf(buf, "%02X", modifyChipsetPtr->device);
+			snprintf(buf,  sizeof(buf), "%02X", modifyChipsetPtr->device);
 			SetDlgItemText(hdlg, IDC_MODIFY_DEVICE, buf);
 
 			SendMessage(GetDlgItem(hdlg, IDC_MODIFY_FUNC), EM_SETLIMITTEXT, 1, 0);
-			sprintf(buf, "%01X", modifyChipsetPtr->function);
+			snprintf(buf,  sizeof(buf), "%01X", modifyChipsetPtr->function);
 			SetDlgItemText(hdlg, IDC_MODIFY_FUNC, buf);
 
 			SendMessage(GetDlgItem(hdlg, IDC_MODIFY_MASK), EM_SETLIMITTEXT, 2, 0);
-			sprintf(buf, "%02X", modifyChipsetPtr->mask);
+			snprintf(buf,  sizeof(buf), "%02X", modifyChipsetPtr->mask);
 			SetDlgItemText(hdlg, IDC_MODIFY_MASK, buf);
 
 			SendMessage(GetDlgItem(hdlg, IDC_MODIFY_VALUE), EM_SETLIMITTEXT, 2, 0);
-			sprintf(buf, "%02X", modifyChipsetPtr->value);
+			snprintf(buf,  sizeof(buf), "%02X", modifyChipsetPtr->value);
 			SetDlgItemText(hdlg, IDC_MODIFY_VALUE, buf);
 
 			sysbiosChipsetBuildMap(buf, modifyChipsetPtr->mask, modifyChipsetPtr->value);
@@ -288,31 +288,31 @@ void sysbiosRefreshChipsetRegs(uchar *ptr)
 		while ((chipRegPtr->type == 0x00) || (chipRegPtr->type == 0x02))
 		{
 			// index
-			sprintf(buf, "(%02X)%02X", (chipRegPtr->device << 3) | chipRegPtr->function, chipRegPtr->index);
+			snprintf(buf,  sizeof(buf), "(%02X)%02X", (chipRegPtr->device << 3) | chipRegPtr->function, chipRegPtr->index);
 			lvi.iSubItem = 0;
 			lvi.pszText  = buf;
 			SendMessage(hlist, LVM_INSERTITEM, 0, (LPARAM)&lvi);
 
 			// device
-			sprintf(buf, "%02X", chipRegPtr->device);
+			snprintf(buf,  sizeof(buf), "%02X", chipRegPtr->device);
 			lvi.iSubItem = 1;
 			lvi.pszText  = buf;
 			SendMessage(hlist, LVM_SETITEM, 0, (LPARAM)&lvi);
 
 			// function
-			sprintf(buf, "%01X", chipRegPtr->function);
+			snprintf(buf,  sizeof(buf), "%01X", chipRegPtr->function);
 			lvi.iSubItem = 2;
 			lvi.pszText  = buf;
 			SendMessage(hlist, LVM_SETITEM, 0, (LPARAM)&lvi);
 
 			// mask
-			sprintf(buf, "%02X", chipRegPtr->mask);
+			snprintf(buf,  sizeof(buf), "%02X", chipRegPtr->mask);
 			lvi.iSubItem = 3;
 			lvi.pszText  = buf;
 			SendMessage(hlist, LVM_SETITEM, 0, (LPARAM)&lvi);
 
 			// value
-			sprintf(buf, "%02X", chipRegPtr->value);
+			snprintf(buf,  sizeof(buf), "%02X", chipRegPtr->value);
 			lvi.iSubItem = 4;
 			lvi.pszText  = buf;
 			SendMessage(hlist, LVM_SETITEM, 0, (LPARAM)&lvi);

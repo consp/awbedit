@@ -1,0 +1,50 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.34114.132
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "awdbe_builtins", "awdbe_builtins\builtins.vcxproj", "{B04DB3A8-4D5B-4664-828C-5C08EF2D74E4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C8080D13-AB2F-4B76-B1C0-AD8D398F105A} = {C8080D13-AB2F-4B76-B1C0-AD8D398F105A}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "awdbe_wavedit", "awdbe_wavedit\awdbe_wavedit.vcxproj", "{DEE0E366-3547-44BF-9276-50459735C264}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C8080D13-AB2F-4B76-B1C0-AD8D398F105A} = {C8080D13-AB2F-4B76-B1C0-AD8D398F105A}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "awdbedit", "awdbedit\awdbedit.vcxproj", "{C8080D13-AB2F-4B76-B1C0-AD8D398F105A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+		Template|x86 = Template|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B04DB3A8-4D5B-4664-828C-5C08EF2D74E4}.Debug|x86.ActiveCfg = Debug|Win32
+		{B04DB3A8-4D5B-4664-828C-5C08EF2D74E4}.Debug|x86.Build.0 = Debug|Win32
+		{B04DB3A8-4D5B-4664-828C-5C08EF2D74E4}.Release|x86.ActiveCfg = Release|Win32
+		{B04DB3A8-4D5B-4664-828C-5C08EF2D74E4}.Release|x86.Build.0 = Release|Win32
+		{B04DB3A8-4D5B-4664-828C-5C08EF2D74E4}.Template|x86.ActiveCfg = Debug|Win32
+		{B04DB3A8-4D5B-4664-828C-5C08EF2D74E4}.Template|x86.Build.0 = Debug|Win32
+		{DEE0E366-3547-44BF-9276-50459735C264}.Debug|x86.ActiveCfg = Debug|Win32
+		{DEE0E366-3547-44BF-9276-50459735C264}.Debug|x86.Build.0 = Debug|Win32
+		{DEE0E366-3547-44BF-9276-50459735C264}.Release|x86.ActiveCfg = Release|Win32
+		{DEE0E366-3547-44BF-9276-50459735C264}.Release|x86.Build.0 = Release|Win32
+		{DEE0E366-3547-44BF-9276-50459735C264}.Template|x86.ActiveCfg = Template|Win32
+		{DEE0E366-3547-44BF-9276-50459735C264}.Template|x86.Build.0 = Template|Win32
+		{C8080D13-AB2F-4B76-B1C0-AD8D398F105A}.Debug|x86.ActiveCfg = Debug|Win32
+		{C8080D13-AB2F-4B76-B1C0-AD8D398F105A}.Debug|x86.Build.0 = Debug|Win32
+		{C8080D13-AB2F-4B76-B1C0-AD8D398F105A}.Release|x86.ActiveCfg = Release|Win32
+		{C8080D13-AB2F-4B76-B1C0-AD8D398F105A}.Release|x86.Build.0 = Release|Win32
+		{C8080D13-AB2F-4B76-B1C0-AD8D398F105A}.Template|x86.ActiveCfg = Template|Win32
+		{C8080D13-AB2F-4B76-B1C0-AD8D398F105A}.Template|x86.Build.0 = Template|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6A15BA46-4BA2-4235-AD6C-D4386614CA32}
+	EndGlobalSection
+EndGlobal

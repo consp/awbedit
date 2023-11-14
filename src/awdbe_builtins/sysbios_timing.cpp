@@ -52,19 +52,19 @@ void sysbiosRefreshBIOSTiming(uchar *ptr)
 	timingPtr = (sysbiosTimingStruct *)((ptr + 0x10000) + *ptr16);
 
 	// fill out the entries...
-	sprintf(buf, "%08X", timingPtr->refreshRate);
+	snprintf(buf,  sizeof(buf), "%08X", timingPtr->refreshRate);
 	SendMessage(GetDlgItem(sysbiosTabList[3].hwnd, IDC_SYSBIOS_REFRESHRATE), EM_SETLIMITTEXT, 8, 0);
 	SetDlgItemText(sysbiosTabList[3].hwnd, IDC_SYSBIOS_REFRESHRATE, buf);
 
-	sprintf(buf, "%04X", timingPtr->fddMotorSpinUp);
+	snprintf(buf,  sizeof(buf), "%04X", timingPtr->fddMotorSpinUp);
 	SendMessage(GetDlgItem(sysbiosTabList[3].hwnd, IDC_SYSBIOS_FDDMOTORSPINUP), EM_SETLIMITTEXT, 4, 0);
 	SetDlgItemText(sysbiosTabList[3].hwnd, IDC_SYSBIOS_FDDMOTORSPINUP, buf);
 
-	sprintf(buf, "%02X", timingPtr->fddHeadSettle);
+	snprintf(buf,  sizeof(buf), "%02X", timingPtr->fddHeadSettle);
 	SendMessage(GetDlgItem(sysbiosTabList[3].hwnd, IDC_SYSBIOS_FDDHEADSETTLE), EM_SETLIMITTEXT, 2, 0);
 	SetDlgItemText(sysbiosTabList[3].hwnd, IDC_SYSBIOS_FDDHEADSETTLE, buf);
 
-	sprintf(buf, "%08X", timingPtr->lptInitialize);
+	snprintf(buf,  sizeof(buf), "%08X", timingPtr->lptInitialize);
 	SendMessage(GetDlgItem(sysbiosTabList[3].hwnd, IDC_SYSBIOS_LPTINITIALIZE), EM_SETLIMITTEXT, 8, 0);
 	SetDlgItemText(sysbiosTabList[3].hwnd, IDC_SYSBIOS_LPTINITIALIZE, buf);
 

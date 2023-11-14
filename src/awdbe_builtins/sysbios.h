@@ -29,7 +29,7 @@
 typedef uchar	u24[3];
 
 #define U24_TO_ULONG(x)			((x[2] << 16) | (x[1] << 8) | (x[0]))
-#define U24_TO_STRING(u2, str)	(sprintf(str, "%02X%02X%02X", u2[2], u2[1], u2[0]))
+#define U24_TO_STRING(u2, str)	(snprintf(str,  sizeof(str), "%02X%02X%02X", u2[2], u2[1], u2[0]))
 #define ULONG_TO_U24(ul, u2)	(memcpy(&u2[0], ((uchar *)&ul), 3))
 #define STRING_TO_U24(str, u2)	{ ulong __temp__ = 0; sscanf(str, "%x", &__temp__); ULONG_TO_U24(__temp__, u2); }
 

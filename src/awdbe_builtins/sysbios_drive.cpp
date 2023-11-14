@@ -43,31 +43,31 @@ BOOL CALLBACK ModifyDriveFunc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lPa
 	switch (message)
 	{
 		case WM_INITDIALOG:
-			sprintf(buf, "%d", modifyDriveType);
+			snprintf(buf,  sizeof(buf), "%d", modifyDriveType);
 			SetDlgItemText(hdlg, IDC_MODIFY_TYPE, buf);
 
 			SendMessage(GetDlgItem(hdlg, IDC_MODIFY_CYL), EM_SETLIMITTEXT, 5, 0);
-			sprintf(buf, "%d", modifyDrivePtr->cylinders);
+			snprintf(buf,  sizeof(buf), "%d", modifyDrivePtr->cylinders);
 			SetDlgItemText(hdlg, IDC_MODIFY_CYL, buf);
 
 			SendMessage(GetDlgItem(hdlg, IDC_MODIFY_HEADS), EM_SETLIMITTEXT, 3, 0);
-			sprintf(buf, "%d", modifyDrivePtr->heads);
+			snprintf(buf,  sizeof(buf), "%d", modifyDrivePtr->heads);
 			SetDlgItemText(hdlg, IDC_MODIFY_HEADS, buf);
 
 			SendMessage(GetDlgItem(hdlg, IDC_MODIFY_PRECOMP), EM_SETLIMITTEXT, 5, 0);
-			sprintf(buf, "%d", modifyDrivePtr->precomp);
+			snprintf(buf,  sizeof(buf), "%d", modifyDrivePtr->precomp);
 			SetDlgItemText(hdlg, IDC_MODIFY_PRECOMP, buf);
 
 			SendMessage(GetDlgItem(hdlg, IDC_MODIFY_CONTROL), EM_SETLIMITTEXT, 5, 0);
-			sprintf(buf, "%d", modifyDrivePtr->control);
+			snprintf(buf,  sizeof(buf), "%d", modifyDrivePtr->control);
 			SetDlgItemText(hdlg, IDC_MODIFY_CONTROL, buf);
 
 			SendMessage(GetDlgItem(hdlg, IDC_MODIFY_LZONE), EM_SETLIMITTEXT, 5, 0);
-			sprintf(buf, "%d", modifyDrivePtr->landzone);
+			snprintf(buf,  sizeof(buf), "%d", modifyDrivePtr->landzone);
 			SetDlgItemText(hdlg, IDC_MODIFY_LZONE, buf);
 
 			SendMessage(GetDlgItem(hdlg, IDC_MODIFY_SECTORS), EM_SETLIMITTEXT, 3, 0);
-			sprintf(buf, "%d", modifyDrivePtr->sectors);
+			snprintf(buf,  sizeof(buf), "%d", modifyDrivePtr->sectors);
 			SetDlgItemText(hdlg, IDC_MODIFY_SECTORS, buf);
 			break;
 
@@ -265,43 +265,43 @@ void sysbiosRefreshDriveTable(uchar *ptr)
 		for (t = 0; t < 47; t++)
 		{
 			// type
-			sprintf(buf, "%d", t + 1);
+			snprintf(buf,  sizeof(buf), "%d", t + 1);
 			lvi.iSubItem = 0;
 			lvi.pszText  = buf;
 			SendMessage(hlist, LVM_INSERTITEM, 0, (LPARAM)&lvi);
 
 			// cyls
-			sprintf(buf, "%d", drvTblPtr->cylinders);
+			snprintf(buf,  sizeof(buf), "%d", drvTblPtr->cylinders);
 			lvi.iSubItem = 1;
 			lvi.pszText  = buf;
 			SendMessage(hlist, LVM_SETITEM, 0, (LPARAM)&lvi);
 
 			// heads
-			sprintf(buf, "%d", drvTblPtr->heads);
+			snprintf(buf,  sizeof(buf), "%d", drvTblPtr->heads);
 			lvi.iSubItem = 2;
 			lvi.pszText  = buf;
 			SendMessage(hlist, LVM_SETITEM, 0, (LPARAM)&lvi);
 
 			// precomp
-			sprintf(buf, "%d", drvTblPtr->precomp);
+			snprintf(buf,  sizeof(buf), "%d", drvTblPtr->precomp);
 			lvi.iSubItem = 3;
 			lvi.pszText  = buf;
 			SendMessage(hlist, LVM_SETITEM, 0, (LPARAM)&lvi);
 
 			// control
-			sprintf(buf, "%d", drvTblPtr->control);
+			snprintf(buf,  sizeof(buf), "%d", drvTblPtr->control);
 			lvi.iSubItem = 4;
 			lvi.pszText  = buf;
 			SendMessage(hlist, LVM_SETITEM, 0, (LPARAM)&lvi);
 
 			// landzone
-			sprintf(buf, "%d", drvTblPtr->landzone);
+			snprintf(buf,  sizeof(buf), "%d", drvTblPtr->landzone);
 			lvi.iSubItem = 5;
 			lvi.pszText  = buf;
 			SendMessage(hlist, LVM_SETITEM, 0, (LPARAM)&lvi);
 
 			// sectors
-			sprintf(buf, "%d", drvTblPtr->sectors);
+			snprintf(buf,  sizeof(buf), "%d", drvTblPtr->sectors);
 			lvi.iSubItem = 6;
 			lvi.pszText  = buf;
 			SendMessage(hlist, LVM_SETITEM, 0, (LPARAM)&lvi);

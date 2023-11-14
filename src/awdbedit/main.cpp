@@ -138,7 +138,7 @@ BOOL APIENTRY AboutBoxProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam
         case WM_INITDIALOG:
 			SetDlgItemText(hDlg, IDC_TEXT_APPVERSION, APP_VERSION);
 
-			sprintf(buf, "Compiled on %s at %s", __DATE__, __TIME__);
+			snprintf(buf, 256, "Compiled on %s at %s", __DATE__, __TIME__);
 			SetDlgItemText(hDlg, IDC_TEXT_COMPILETIME, buf);
             return TRUE;
 
@@ -187,7 +187,7 @@ BOOL APIENTRY AboutBoxProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam
 					case IDC_TEXT_SOURCEFORGE_MAIL:
 					case IDC_TEXT_HENDRIK_MAIL:
 						GetWindowText(GetDlgItem(hDlg, LOWORD(wParam)), buf, 256);
-						sprintf(buf2, "mailto:%s", buf);
+						snprintf(buf2, 256, "mailto:%s", buf);
 
 						ShellExecute(globals.MainhWnd, "open", buf2, NULL, NULL, SW_SHOWNORMAL);
 						return 0;
@@ -260,7 +260,7 @@ void insertRebarControls(HWND hwnd)
 	ZeroMemory(&rbbi, sizeof(rbbi));
 	GetWindowRect(globals.hMenuBar, &rc);
 //	GetWindowRect(hwnd, &rc2);					// use the main window to max out the size of the menu bar
-	rbbi.cbSize		= sizeof(REBARBANDINFO);
+	rbbi.cbSize		= REBARBANDINFO_V3_SIZE; //sizeof(REBARBANDINFO);
 	rbbi.fMask		= RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_STYLE | RBBIM_BACKGROUND;
 	rbbi.fStyle		= RBBS_FIXEDBMP | RBBS_NOGRIPPER | RBBS_FIXEDSIZE | RBBS_BREAK;
 	rbbi.hbmBack	= globals.hSkin;
@@ -277,7 +277,7 @@ void insertRebarControls(HWND hwnd)
 	// Encapsulate the toolbar in the rebar
 	ZeroMemory(&rbbi, sizeof(rbbi));
 	GetWindowRect(globals.hToolBar, &rc);
-	rbbi.cbSize		= sizeof(REBARBANDINFO);
+	rbbi.cbSize = REBARBANDINFO_V3_SIZE; //sizeof(REBARBANDINFO);
 	rbbi.fMask		= RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_STYLE | RBBIM_BACKGROUND | RBBIM_SIZE | RBBIM_HEADERSIZE;
 	rbbi.fStyle		= RBBS_CHILDEDGE | RBBS_FIXEDBMP | RBBS_NOGRIPPER;
 	rbbi.hbmBack	= globals.hSkin;
@@ -428,7 +428,7 @@ void createControls(HWND hwnd)
 	};
 
 	// create a rebar
-	globals.hRebar = CreateWindowEx(WS_EX_CLIENTEDGE, REBARCLASSNAME, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | 
+	globals.hRebar = CreateWindowEx(WS_EX_TOOLWINDOW, REBARCLASSNAME, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS |
 		WS_CLIPCHILDREN | RBS_VARHEIGHT | RBS_BANDBORDERS | CCS_NODIVIDER, 0, 0, 0, 0, hwnd, 
 		NULL, globals.MainhInst, NULL);
 
@@ -497,6 +497,10 @@ void createControls(HWND hwnd)
 	// then add the buttons and resize.
 	SendMessage(globals.hToolBar, TB_ADDBUTTONS, 15, (LPARAM)&toolList);
 	SendMessage(globals.hToolBar, TB_AUTOSIZE, 0, 0);
+
+	ShowWindow(globals.hToolBar, TRUE);
+	ShowWindow(globals.hMenuBar, TRUE);
+	ShowWindow(globals.hRebar, TRUE);
 
 	// destroy our no-longer needed icons
 	DestroyIcon(iFileOpen);
@@ -668,7 +672,7 @@ int handleMenuPopup(HMENU menu)
 		_getcwd(cwd, 256);
 
 		// change to the "Skins" subdirectory
-		sprintf(skindir, "%sSkins", exePath);
+		snprintf(skindir, 256, "%sSkins", exePath);
 		_chdir(skindir);
 
 		// look for all bmp files and add them to the menu
@@ -686,7 +690,7 @@ int handleMenuPopup(HMENU menu)
 				strcpy(skinList[t].fname, fd.name);
 
 				// add it to the menu
-				if (!stricmp(config.lastSkin, skinList[t].fname))
+				if (!_stricmp(config.lastSkin, skinList[t].fname))
 					AppendMenu(menu, MF_ENABLED | MF_CHECKED, skinList[t].id, skinList[t].fname);
 				else
 					AppendMenu(menu, MF_ENABLED, skinList[t].id, skinList[t].fname);
@@ -794,7 +798,7 @@ bool selectSkin(char *fname)
 	_getcwd(cwd, 256);
 
 	// change to the "Skins" subdirectory
-	sprintf(skindir, "%sSkins", exePath);
+	snprintf(skindir, 256, "%sSkins", exePath);
 	_chdir(skindir);
 
 	// load the bitmap
@@ -912,7 +916,7 @@ void updateMRU(void)
 	// first, see if the currently opened bios is in the mru list
 	for (t = 0; t < 4; t++)
 	{
-		if (!stricmp(biosGetFilename(), config.recentFile[t]))
+		if (!_stricmp(biosGetFilename(), config.recentFile[t]))
 		{
 			// it is, so move the remaining items up the list
 			for (x = t; x < 3; x++)
@@ -1280,7 +1284,7 @@ void cleanTempPath(void)
 	if (_chdir(fullTempPath) < 0)
 	{
 		// some error occured changing into our temp dir.  we don't want to destroy any files here!
-		sprintf(cwd, "Unable to clean temporary files dir: [%s]", fullTempPath);
+		snprintf(cwd, 256, "Unable to clean temporary files dir: [%s]", fullTempPath);
 		MessageBox(globals.MainhWnd, cwd, "Internal Error", MB_OK);
 		return;
 	}
@@ -1293,7 +1297,7 @@ void cleanTempPath(void)
 		{
 			// ignore directories
 			if (fd.attrib != _A_SUBDIR)
-				unlink(fd.name);
+				_unlink(fd.name);
 		} while (_findnext(hFile, &fd) == 0);
 
 		_findclose(hFile);
@@ -1316,7 +1320,7 @@ void makeTempPath(void)
 	_mkdir(tmp);
 
 	// split off a directory for us
-	sprintf(fullTempPath, "%s\\Award BIOS Editor Temp Files", tmp);
+	snprintf(fullTempPath, 256, "%s\\Award BIOS Editor Temp Files", tmp);
 
 	// make sure this exists too
 	_mkdir(fullTempPath);

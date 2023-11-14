@@ -45,27 +45,27 @@ BOOL CALLBACK ModifyRoutingFunc(HWND hdlg, UINT message, WPARAM wParam, LPARAM l
 	switch (message)
 	{
 		case WM_INITDIALOG:
-			sprintf(buf, "%d", pciSlotID);
+			snprintf(buf,  sizeof(buf), "%d", pciSlotID);
 			SetDlgItemText(hdlg, IDC_MODIFY_SLOT, buf);
 
 			SendMessage(GetDlgItem(hdlg, IDC_MODIFY_IRQ), EM_SETLIMITTEXT, 2, 0);
-			sprintf(buf, "%02X", *modifyPCIIRQPtr);
+			snprintf(buf,  sizeof(buf), "%02X", *modifyPCIIRQPtr);
 			SetDlgItemText(hdlg, IDC_MODIFY_IRQ, buf);
 
-			SendMessage(GetDlgItem(hdlg, IDC_MODIFY_INTA), EM_SETLIMITTEXT, 2, 0);
-			sprintf(buf, "%d", modifyPCIRoutePtr->inta);
+			SendMessage(GetDlgItem(hdlg, IDC_MODIFY_INTA), EM_SETLIMITTEXT, 3, 0);
+			snprintf(buf,  sizeof(buf), "%d", modifyPCIRoutePtr->inta);
 			SetDlgItemText(hdlg, IDC_MODIFY_INTA, buf);
 
-			SendMessage(GetDlgItem(hdlg, IDC_MODIFY_INTB), EM_SETLIMITTEXT, 2, 0);
-			sprintf(buf, "%d", modifyPCIRoutePtr->intb);
+			SendMessage(GetDlgItem(hdlg, IDC_MODIFY_INTB), EM_SETLIMITTEXT, 3, 0);
+			snprintf(buf,  sizeof(buf), "%d", modifyPCIRoutePtr->intb);
 			SetDlgItemText(hdlg, IDC_MODIFY_INTB, buf);
 
-			SendMessage(GetDlgItem(hdlg, IDC_MODIFY_INTC), EM_SETLIMITTEXT, 2, 0);
-			sprintf(buf, "%d", modifyPCIRoutePtr->intc);
+			SendMessage(GetDlgItem(hdlg, IDC_MODIFY_INTC), EM_SETLIMITTEXT, 3, 0);
+			snprintf(buf,  sizeof(buf), "%d", modifyPCIRoutePtr->intc);
 			SetDlgItemText(hdlg, IDC_MODIFY_INTC, buf);
 
-			SendMessage(GetDlgItem(hdlg, IDC_MODIFY_INTD), EM_SETLIMITTEXT, 2, 0);
-			sprintf(buf, "%d", modifyPCIRoutePtr->intd);
+			SendMessage(GetDlgItem(hdlg, IDC_MODIFY_INTD), EM_SETLIMITTEXT, 3, 0);
+			snprintf(buf,  sizeof(buf), "%d", modifyPCIRoutePtr->intd);
 			SetDlgItemText(hdlg, IDC_MODIFY_INTD, buf);
 			break;
 
@@ -244,40 +244,48 @@ void sysbiosRefreshIRQRouting(uchar *ptr)
 		lvi.mask  = LVIF_TEXT;
 		lvi.iItem = 0;
 
-		while (*sptr != 0xFF)
-		{
+		int cnt = 0;
+
+		while (cnt < 5)
+		{	
+
+			if ((uchar) *sptr == 0xFF && cnt >= 4) { // only five entries afaik
+				break;
+			}
+			cnt++;
+
 			// slot
-			sprintf(buf, "%d", lvi.iItem);
+			snprintf(buf,  sizeof(buf), "%d", lvi.iItem);
 			lvi.iSubItem = 0;
 			lvi.pszText  = buf;
 			SendMessage(hlist, LVM_INSERTITEM, 0, (LPARAM)&lvi);
 
 			// irq
-			sprintf(buf, "%02X", *sptr);
+			snprintf(buf,  sizeof(buf), "%02X", *sptr);
 			lvi.iSubItem = 1;
 			lvi.pszText  = buf;
 			SendMessage(hlist, LVM_SETITEM, 0, (LPARAM)&lvi);
 
 			// inta
-			sprintf(buf, "%d", *mptr++);
+			snprintf(buf,  sizeof(buf), "%3d", *mptr++);
 			lvi.iSubItem = 2;
 			lvi.pszText  = buf;
 			SendMessage(hlist, LVM_SETITEM, 0, (LPARAM)&lvi);
 
 			// intb
-			sprintf(buf, "%d", *mptr++);
+			snprintf(buf,  sizeof(buf), "%3d", *mptr++);
 			lvi.iSubItem = 3;
 			lvi.pszText  = buf;
 			SendMessage(hlist, LVM_SETITEM, 0, (LPARAM)&lvi);
 
 			// intc
-			sprintf(buf, "%d", *mptr++);
+			snprintf(buf,  sizeof(buf), "%3d", *mptr++);
 			lvi.iSubItem = 4;
 			lvi.pszText  = buf;
 			SendMessage(hlist, LVM_SETITEM, 0, (LPARAM)&lvi);
 
 			// intd
-			sprintf(buf, "%d", *mptr++);
+			snprintf(buf,  sizeof(buf), "%3d", *mptr++);
 			lvi.iSubItem = 5;
 			lvi.pszText  = buf;
 			SendMessage(hlist, LVM_SETITEM, 0, (LPARAM)&lvi);

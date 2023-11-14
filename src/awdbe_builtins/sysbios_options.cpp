@@ -66,17 +66,17 @@ void sysbiosRefreshBIOSOptions(uchar *ptr)
 	
 	// power on delay count
 	ptr16 = (ushort *)(ptr + 0x1FEA8);
-	sprintf(buf, "%d", *ptr16);
+	snprintf(buf,  sizeof(buf), "%d", *ptr16);
 	SetDlgItemText(sysbiosTabList[4].hwnd, IDC_SYSBIOS_BOOTUP_POWERONDELAY, buf);
 
 	// setup default color value, lower 4 bits
 	sptr = ptr + 0x1FEAA;
-	sprintf(buf, "%d", (*sptr) & 0x0F);
+	snprintf(buf,  sizeof(buf), "%d", (*sptr) & 0x0F);
 	SetDlgItemText(sysbiosTabList[4].hwnd, IDC_SYSBIOS_COLOR_SETUPDEFAULT, buf);
 
 	// post default color value, upper 4 bits
 	sptr = ptr + 0x1FEAA;
-	sprintf(buf, "%d", ((*sptr) & 0xF0) >> 4);
+	snprintf(buf,  sizeof(buf), "%d", ((*sptr) & 0xF0) >> 4);
 	SetDlgItemText(sysbiosTabList[4].hwnd, IDC_SYSBIOS_COLOR_POSTDEFAULT, buf);
 	
 	// post color option stored in bit 0
@@ -97,7 +97,7 @@ void sysbiosRefreshBIOSOptions(uchar *ptr)
 
 	if (sysbiosVersion != awdbeBIOSVer600PG)
 	{
-		sprintf(buf, "%02X %02X", *sptr, *(sptr + 1));
+		snprintf(buf,  sizeof(buf), "%02X %02X", *sptr, *(sptr + 1));
 	}
 	else
 	{
@@ -105,11 +105,11 @@ void sysbiosRefreshBIOSOptions(uchar *ptr)
 
 		for (t = 0; t < 7; t++)
 		{
-			sprintf(tempbuf, "%02X ", *sptr++);
+			snprintf(tempbuf,  sizeof(tempbuf), "%02X ", *sptr++);
 			strcat(buf, tempbuf);
 		}
 
-		sprintf(tempbuf, "%02X", *sptr);
+		snprintf(tempbuf,  sizeof(tempbuf), "%02X", *sptr);
 		strcat(buf, tempbuf);
 	}
 
@@ -121,7 +121,7 @@ void sysbiosRefreshBIOSOptions(uchar *ptr)
 	else
 		sptr = ptr + 0x1EC68;
 
-	sprintf(buf, "%d", *sptr);
+	snprintf(buf,  sizeof(buf), "%d", *sptr);
 	SetDlgItemText(sysbiosTabList[4].hwnd, IDC_SYSBIOS_SECURITY_NUMRETRIES, buf);
 	
 	// floppy speed switching, bit 1 clear to enable

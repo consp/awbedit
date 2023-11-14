@@ -120,7 +120,7 @@ ulong pluginScan(char *dir, bool doLoad)
 				// if this directory has a '.' as the first character, don't scan.
 				if (fd.name[0] != '.')
 				{
-					sprintf(fname, "%s%s\\", dir, fd.name);
+					snprintf(fname,  sizeof(fname), "%s%s\\", dir, fd.name);
 					count += pluginScan(fname, doLoad);
 				}
 			}
@@ -128,13 +128,13 @@ ulong pluginScan(char *dir, bool doLoad)
 			{
 				// does this file have a .dll extension?
 				ptr = fd.name + (strlen(fd.name) - 4);
-				if (!memicmp(ptr, ".dll", 4))
+				if (!_memicmp((char*)ptr, ".dll", 4))
 				{
 					// if we're only checking for DLLs, don't bother load it.
 					if (doLoad == TRUE)
 					{
 						// load this DLL
-						sprintf(fname, "%s%s", dir, fd.name);
+						snprintf(fname,  sizeof(fname), "%s%s", dir, fd.name);
 						if ( (hInst = LoadLibrary(fname)) != NULL )
 						{
 							// look for our "awdbeRegisterPlugin" function in the DLL

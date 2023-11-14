@@ -117,7 +117,7 @@ void biosTitleUpdate(void)
 	ulong size;
 	fileEntry *fe;
 
-	sprintf(buf, "%s - [%s%s", APP_VERSION, biosdata.fname, (biosdata.modified == TRUE) ? " *]" : "]");
+	snprintf(buf, 256, "%s - [%s%s", APP_VERSION, biosdata.fname, (biosdata.modified == TRUE) ? " *]" : "]");
 	SetWindowText(hwnd, buf);
 
 	// go through all files in the table with an offset of 0 and calculate a total size
@@ -131,7 +131,7 @@ void biosTitleUpdate(void)
 			size += fe->compSize;
 	}
 
-	sprintf(buf, "Used: %dK/%dK", size / 1024, biosdata.maxTableSize / 1024);
+	snprintf(buf, 256, "Used: %dK/%dK", size / 1024, biosdata.maxTableSize / 1024);
 	SendMessage(statusWnd, SB_SETTEXT, 1, (LPARAM)buf);
 
 	// set the global free size while we're at it...
@@ -395,7 +395,7 @@ void biosUpdateComponents(void)
 				// flog an error if we didn't find one (so the plugin creator can fix his bug)
 				if (subMenuPtr == NULL)
 				{
-					sprintf(buf, "Unable to find a submenu definition for the [%s] type!\n\nThis error is being generated "
+					snprintf(buf, 512, "Unable to find a submenu definition for the [%s] type!\n\nThis error is being generated "
 						"due to an error in the item definition structure of one of your plugins.  If you are\ncreating a "
 						"plugin, please check to make sure you have properly inserted AWDBE_SUBMENU tags in your item "
 						"list.\nIf you are an end-user, please check and see if a newer (and fixed) version of your "
@@ -443,7 +443,7 @@ void biosUpdateComponents(void)
 			if (t <= HASH_UNKNOWN_ITEM_MAX)
 			{
 				// no one responded, so this is an unknown component.  insert it as such...
-				sprintf(buf, "Other (%04X:0000)", fe->type);
+				snprintf(buf, sizeof(buf), "Other (%04X:0000)", fe->type);
 
 				tvis.hParent		= unkItem;
 				tvis.hInsertAfter	= TVI_LAST;
@@ -488,7 +488,7 @@ void biosUpdateComponents(void)
 						// flog an error if we didn't find one (so the plugin creator can fix his bug)
 						if (subMenuPtr == NULL)
 						{
-							sprintf(buf, "Unable to find a submenu definition for the [%s] type!\n\nThis error is being generated "
+							snprintf(buf, 512, "Unable to find a submenu definition for the [%s] type!\n\nThis error is being generated "
 								"due to an error in the item definition structure of one of your plugins.  If you are\ncreating a "
 								"plugin, please check to make sure you have properly inserted AWDBE_SUBMENU tags in your item "
 								"list.\nIf you are an end-user, please check and see if a newer (and fixed) version of your "
@@ -676,9 +676,12 @@ bool biosOpenFile(char *fname)
 
 	ptr	  = biosdata.imageData;
 	count = biosdata.imageSize;
+
+	const char *bootBlockString = "Award BootBlock Bios";
+
 	while (count--)
 	{
-		if (!memicmp(ptr, "Award BootBlock Bios", 20))
+		if (!_memicmp(ptr, bootBlockString, 20))
 		{
 			bootBlockSize = biosdata.imageSize - (ptr - biosdata.imageData);
 			bootBlockData = new uchar[bootBlockSize];
@@ -704,7 +707,7 @@ bool biosOpenFile(char *fname)
 	count = biosdata.imageSize;
 	while (count--)
 	{
-		if (!memicmp(ptr, "= Award Decompression Bios =", 28))
+		if (!_memicmp((char*)ptr, "= Award Decompression Bios =", 28))
 		{
 			// copy the decompression block
 			decompBlockSize = (biosdata.imageSize - (ptr - biosdata.imageData)) - bootBlockSize;
@@ -1217,7 +1220,7 @@ bool biosSaveFile(char *fname)
 	fileEntry *fe;
 	ulong decompSize, bootSize;
 	uchar ch, csum1, csum2, rcs1, rcs2;
-	char buf[256];
+	char buf[257];
 
 	// open the file
 	fp = fopen(fname, "wb");
@@ -1321,7 +1324,7 @@ bool biosSaveFile(char *fname)
 			rcs1 = fgetc(fp);
 			rcs2 = fgetc(fp);
 
-			sprintf(buf, "Current checksum: %02X %02X\nCalculated checksum: %02X %02X", rcs1, rcs2, csum1, csum2);
+			snprintf(buf, 256, "Current checksum: %02X %02X\nCalculated checksum: %02X %02X", rcs1, rcs2, csum1, csum2);
 			MessageBox(hwnd, buf, "Notice", MB_OK);
 #else
 
@@ -1657,12 +1660,12 @@ BOOL APIENTRY PropertiesProc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lPar
 				DrawText(hdc, "0.5Mbit", -1, &rc, DT_NOCLIP | DT_TOP | DT_LEFT);
 			else
 			{
-				sprintf(buf, "%dMbit", t / 2);
+				snprintf(buf, 256, "%dMbit", t / 2);
 				DrawText(hdc, buf, -1, &rc, DT_NOCLIP | DT_TOP | DT_LEFT);
 			}
 
 			rc.left = rc2.right - 12;
-			sprintf(buf, "%dMbit", t);
+			snprintf(buf, 256, "%dMbit", t);
 			DrawText(hdc, buf, -1, &rc, DT_NOCLIP | DT_TOP | DT_LEFT);
 
 			// done!
@@ -1672,30 +1675,30 @@ BOOL APIENTRY PropertiesProc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lPar
         case WM_INITDIALOG:
 			SetWindowText(GetDlgItem(hdlg, IDC_TEXT_FILENAME), biosdata.fname);
 
-			sprintf(buf, "%d bytes (%dMbit)", biosdata.imageSize, biosdata.imageSize / 131072);
+			snprintf(buf, 256, "%d bytes (%dMbit)", biosdata.imageSize, biosdata.imageSize / 131072);
 			SetWindowText(GetDlgItem(hdlg, IDC_TEXT_SIZE), buf);
 
 			switch (biosdata.layout)
 			{
-				case LAYOUT_2_2_2: sprintf(buf, "2-2-2"); break;
-				case LAYOUT_2_1_1: sprintf(buf, "2-1-1"); break;
-				case LAYOUT_1_1_1: sprintf(buf, "1-1-1"); break;
-				default:		   sprintf(buf, "UNKNOWN"); break;
+				case LAYOUT_2_2_2: snprintf(buf, 256, "2-2-2"); break;
+				case LAYOUT_2_1_1: snprintf(buf, 256, "2-1-1"); break;
+				case LAYOUT_1_1_1: snprintf(buf, 256, "1-1-1"); break;
+				default:		   snprintf(buf, 256, "UNKNOWN"); break;
 			}
 
 			SetWindowText(GetDlgItem(hdlg, IDC_TEXT_LAYOUT), buf);
 			
-			sprintf(buf, "%08Xh (%d)\n", biosdata.tableOffset, biosdata.tableOffset);
+			snprintf(buf, 256, "%08Xh (%d)\n", biosdata.tableOffset, biosdata.tableOffset);
 			SetWindowText(GetDlgItem(hdlg, IDC_TEXT_OFFSET), buf);
 
 			fe = biosScanForID(TYPEID_BOOTBLOCK);
 			bootSize = ((fe == NULL) ? (0) : (fe->size));
-			sprintf(buf, "%d bytes", bootSize);
+			snprintf(buf, sizeof(buf), "%d bytes", bootSize);
 			SetWindowText(GetDlgItem(hdlg, IDC_TEXT_BOOT_BLOCK), buf);
 			
 			fe = biosScanForID(TYPEID_DECOMPBLOCK);
 			decompSize = ((fe == NULL) ? (0) : (fe->size));
-			sprintf(buf, "%d bytes", decompSize);
+			snprintf(buf, sizeof(buf), "%d bytes", decompSize);
 			SetWindowText(GetDlgItem(hdlg, IDC_TEXT_DECOMPRESSION_BLOCK), buf);
 
 		//===========================================
@@ -1768,25 +1771,25 @@ BOOL APIENTRY PropertiesProc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lPar
 				SendMessage(hPropDlgListWnd, LVM_INSERTITEM, 0, (LPARAM)&lvi);
 
 				// size...
-				sprintf(buf, "%d", fe->size);
+				snprintf(buf, sizeof(buf), "%d", fe->size);
 				lvi.iSubItem = 1;
 				lvi.pszText  = buf;
 				SendMessage(hPropDlgListWnd, LVM_SETITEM, 0, (LPARAM)&lvi);
 
 				// compressed size...
-				sprintf(buf, "%d", fe->compSize);
+				snprintf(buf, sizeof(buf), "%d", fe->compSize);
 				lvi.iSubItem = 2;
 				lvi.pszText  = buf;
 				SendMessage(hPropDlgListWnd, LVM_SETITEM, 0, (LPARAM)&lvi);
 
 				// ID...
-				sprintf(buf, "%04X", fe->type);
+				snprintf(buf, sizeof(buf), "%04X", fe->type);
 				lvi.iSubItem = 3;
 				lvi.pszText  = buf;
 				SendMessage(hPropDlgListWnd, LVM_SETITEM, 0, (LPARAM)&lvi);
 
 				// CRC...
-				sprintf(buf, "%04X", fe->crc);
+				snprintf(buf, sizeof(buf), "%04X", fe->crc);
 				lvi.iSubItem = 4;
 				lvi.pszText  = buf;
 				SendMessage(hPropDlgListWnd, LVM_SETITEM, 0, (LPARAM)&lvi);
@@ -1828,10 +1831,10 @@ BOOL APIENTRY PropertiesProc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lPar
 					// update layout...
 					switch (biosdata.layout)
 					{
-						case LAYOUT_2_2_2: sprintf(buf, "2-2-2"); break;
-						case LAYOUT_2_1_1: sprintf(buf, "2-1-1"); break;
-						case LAYOUT_1_1_1: sprintf(buf, "1-1-1"); break;
-						default:		   sprintf(buf, "UNKNOWN"); break;
+						case LAYOUT_2_2_2: snprintf(buf, sizeof(buf), "2-2-2"); break;
+						case LAYOUT_2_1_1: snprintf(buf, sizeof(buf), "2-1-1"); break;
+						case LAYOUT_1_1_1: snprintf(buf, sizeof(buf), "1-1-1"); break;
+						default:		   snprintf(buf, sizeof(buf), "UNKNOWN"); break;
 					}
 
 					SetWindowText(GetDlgItem(hdlg, IDC_TEXT_LAYOUT), buf);
@@ -1900,7 +1903,7 @@ BOOL CALLBACK BiosInternalDialogFunc(HWND hdlg, UINT message, WPARAM wParam, LPA
 void biosUpdateCurrentDialog(void)
 {
 	HWND hedit;
-	char buf[256];
+	char buf[257];
 	ulong len, data;
 	ushort data16;
 	awdbeItem *item;
@@ -1976,7 +1979,7 @@ void biosUpdateCurrentDialog(void)
 				item = pluginFindHash(curHash);
 				if (item == NULL)
 				{
-					sprintf(buf, "pluginFindHash() returned NULL for hash=%08Xh.  This hash value should be in the switch()...", curHash);
+					snprintf(buf, sizeof(buf), "pluginFindHash() returned NULL for hash=%08Xh.  This hash value should be in the switch()...", curHash);
 					MessageBox(hwnd, buf, "Internal Error", MB_OK);
 					return;
 				}
@@ -1996,8 +1999,8 @@ void biosUpdateCurrentDialog(void)
 void biosItemChanged(LPNMTREEVIEW lpnmtv)
 {
 	HWND hKillWnd, hedit;
-	char buf[256];
-	awdbeItem *item;
+	char buf[257];
+	awdbeItem *item = NULL;
 	RECT rcx;
 
 	// guard against unwanted notifies
@@ -2080,7 +2083,7 @@ void biosItemChanged(LPNMTREEVIEW lpnmtv)
 				item = pluginFindHash(curHash);
 				if (item == NULL)
 				{
-					sprintf(buf, "pluginFindHash() returned NULL for hash=%08Xh.  This hash value should be in the switch()...", curHash);
+					snprintf(buf, sizeof(buf), "pluginFindHash() returned NULL for hash=%08Xh.  This hash value should be in the switch()...", curHash);
 					MessageBox(hwnd, buf, "Internal Error", MB_OK);
 					return;
 				}
@@ -2143,7 +2146,7 @@ void biosItemChanged(LPNMTREEVIEW lpnmtv)
 	hedit = GetDlgItem(hModDlgWnd, IDC_FILE_ID);
 	if (IsWindow(hedit))
 	{
-		sprintf(buf, "%04X", curFileEntry->type);
+		snprintf(buf, sizeof(buf), "%04X", curFileEntry->type);
 		SetWindowText(hedit, buf);
 
 		// if this is the decompression or boot block, disable the window to prevent changes to the ID
@@ -2156,7 +2159,7 @@ void biosItemChanged(LPNMTREEVIEW lpnmtv)
 	hedit = GetDlgItem(hModDlgWnd, IDC_FILE_SIZE);
 	if (IsWindow(hedit))
 	{
-		sprintf(buf, "%d", curFileEntry->size);
+		snprintf(buf, sizeof(buf), "%d", curFileEntry->size);
 		SetWindowText(hedit, buf);
 
 		// this item cannot be modified
@@ -2166,7 +2169,7 @@ void biosItemChanged(LPNMTREEVIEW lpnmtv)
 	hedit = GetDlgItem(hModDlgWnd, IDC_FILE_OFFSET);
 	if (IsWindow(hedit))
 	{
-		sprintf(buf, "%08X", curFileEntry->offset);
+		snprintf(buf, sizeof(buf), "%08X", curFileEntry->offset);
 		SetWindowText(hedit, buf);
 
 		// if this is the decompression or boot block, disable the window to prevent changes to the offset
@@ -2213,7 +2216,7 @@ bool biosAddComponent(char *fname, ushort id, ulong offset)
 
 	// get just the name of this file
 	_splitpath(fname, NULL, NULL, name, ext);
-	sprintf(fname, "%s%s", name, ext);
+	snprintf(fname,  sizeof(fname), "%s%s", name, ext);
 
 	// get the size too
 	fseek(fp, 0, 2);
@@ -2280,7 +2283,7 @@ bool biosAddComponent(char *fname, ushort id, ulong offset)
 
 BOOL APIENTRY InsertProc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	char buf[256];
+	char buf[257];
 	OPENFILENAME ofn;
 	ulong offset;
 	ushort id;
@@ -2294,7 +2297,7 @@ BOOL APIENTRY InsertProc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 			if (insertID != 0)
 			{
-				sprintf(buf, "%04X", insertID);
+				snprintf(buf, sizeof(buf), "%04X", insertID);
 				SetDlgItemText(hdlg, IDC_INSERT_ID, buf);
 
 				SetFocus(GetDlgItem(hdlg, IDC_INSERT_FILENAME));
@@ -2436,7 +2439,7 @@ void biosReplaceFile(char *fname)
 
 	// get just the name of this file
 	_splitpath(fname, NULL, NULL, name, ext);
-	sprintf(fname, "%s%s", name, ext);
+	snprintf(fname,  sizeof(fname), "%s%s", name, ext);
 
 	// get the size too
 	fseek(fp, 0, 2);
@@ -2518,7 +2521,7 @@ void biosReplaceFile(char *fname)
 	hedit = GetDlgItem(hModDlgWnd, IDC_FILE_SIZE);
 	if (IsWindow(hedit))
 	{
-		sprintf(fname, "%d", curFileEntry->size);
+		snprintf(fname,  sizeof(fname), "%d", curFileEntry->size);
 		SetWindowText(hedit, fname);
 	}
 
@@ -2688,7 +2691,7 @@ void biosExtractAll(void)
 					fe = &biosdata.fileTable[t];
 
 					// create a filename
-					sprintf(fname, "%s\\%s", fullpath, fe->name);
+					snprintf(fname, 256, "%s\\%s", fullpath, fe->name);
 
 					// write the data
 					fp = fopen(fname, "wb");
@@ -2699,7 +2702,7 @@ void biosExtractAll(void)
 					}
 					else
 					{
-						sprintf(fname, "Unable to extract [%s]!  Skipping...\n", fe->name);
+						snprintf(fname, 256, "Unable to extract [%s]!  Skipping...\n", fe->name);
 						MessageBox(hwnd, fname, "Error", MB_OK);
 					}
 				}
@@ -2859,7 +2862,7 @@ void biosHexEdit(void)
 	biosUpdateCurrentDialog();
 
 	// create a filename
-	sprintf(fname, "%s\\%s", fullTempPath, curFileEntry->name);
+	snprintf(fname, 256, "%s\\%s", fullTempPath, curFileEntry->name);
 
 	// write out the data to our temporary path
 	fp = fopen(fname, "wb");
@@ -2903,11 +2906,11 @@ time_t biosGetLastWriteTime(updateEntry *ue)
 	return fd.time_write;
 }
 
-void CALLBACK UpdateProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime)
+void CALLBACK UpdateProc(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
 	updateEntry *ue = updateList;
 	time_t lastwrite;
-	char buf[256];
+	char buf[257];
 
 	if (updateIgnoreTimer == TRUE)
 		return;
@@ -2919,12 +2922,12 @@ void CALLBACK UpdateProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime)
 		lastwrite = biosGetLastWriteTime(ue);
 		if (ue->lastWrite != lastwrite)
 		{
-			sprintf(buf, "%s has been modified by an external application.  Do you wish to load the\n"
+			snprintf(buf, sizeof(buf), "%s has been modified by an external application.  Do you wish to load the\n"
 				"changed contents into the current BIOS image?", ue->fname);
 
 			if (MessageBox(hwnd, buf, "Notice", MB_YESNO) == IDYES)
 			{
-				sprintf(buf, "%s%s", ue->path, ue->fname);
+				snprintf(buf, sizeof(buf), "%s%s", ue->path, ue->fname);
 				biosReplaceFile(buf);
 			}
 
@@ -2941,17 +2944,17 @@ void CALLBACK UpdateProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime)
 void biosAddToUpdateList(char *fname)
 {
 	updateEntry *ue, *ui;
-	char path[256], name[256], ext[256], fullname[256];
+	char path[256], name[256], ext[256], fullname[512];
 
 	// split up our fname into path/name components
 	_splitpath(fname, NULL, path, name, ext);
-	sprintf(fullname, "%s%s", name, ext);
+	snprintf(fullname, 512, "%s%s", name, ext);
 
 	// make sure this entry is not already in the update list
 	ue = updateList;
 	while (ue != NULL)
 	{
-		if (!stricmp(ue->path, path) && !stricmp(ue->fname, fullname))
+		if (!_stricmp(ue->path, path) && !_stricmp(ue->fname, fullname))
 			return;
 
 		ue = ue->next;
@@ -3096,17 +3099,17 @@ awdbeBIOSVersion biosGetVersion(void)
 
 	while (len--)
 	{
-		if (!memicmp(sptr, "v4.50PG", 7))
+		if (!strncmp((const char*)sptr, "v4.50PG", 7) || !strncmp((const char*)sptr, "v4.51PG", 7))
 		{
 			vers = awdbeBIOSVer451PG;
 			len  = 0;
 		}
-		else if (!memicmp(sptr, "v6.00PG", 7))
+		else if (!strncmp((const char*)sptr, "v6.00PG", 7))
 		{
 			vers = awdbeBIOSVer600PG;
 			len  = 0;
 		}
-		else if (!memicmp(sptr, "v6.0", 4))
+		else if (!strncmp((const char*)sptr, "v6.0", 4))
 		{
 			vers = awdbeBIOSVer60;
 			len  = 0;
