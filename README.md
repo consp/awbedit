@@ -1,8 +1,19 @@
 # AWBEdit modified to read 4.50PG bioses
 
-This is a binary edit (and source) to allow the file to read 4.50PG versions instead of 4.51PG. Yes, it only alters the 1 into a 0.
+This "version" fixes some minor issues which annoyed me and carries the version into <insert date here>.
 
-Since the orignal author specifies GPL this repo includes both binaries (see releases) and the source.
+The latest release is compiled against the last Windows 10 SDK, should work on most machines but YMMV.
+
+# fixes
+
+* User can now open both 4.50PG and 4.51PG bioses in the same version. The EPA logo does not work in 4.50PG.
+* User can edit all 4 PCI IRQ routing tables even if the 4th one is not present (is marked as IRQ 0xFF)
+* User can now edit all values of the PCI IRQ routing table, even if they originally had less than 3 characters.
+* Fixed a bug where compiling with the windows SDK later than 7 will result in the menu bar not showing.
+
+I guess the cleanup work has some more bugs but so far I have not encountered them (yet).
+
+# Credits
 
 All credits to the original author.
 
