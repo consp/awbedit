@@ -3096,7 +3096,7 @@ awdbeBIOSVersion biosGetVersion(void)
 
 	while (len--)
 	{
-		if (!memicmp(sptr, "v4.51PG", 7))
+		if (!memicmp(sptr, "v4.50PG", 7))
 		{
 			vers = awdbeBIOSVer451PG;
 			len  = 0;
