@@ -1,4 +1,4 @@
-# AWBEdit modified to read 4.50PG bioses
+# Awdbedit modified to read 4.50PG bioses (and bugfixes)
 
 This "version" fixes some minor issues which annoyed me and carries the version into <insert date here>.
 
