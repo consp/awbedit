@@ -302,6 +302,7 @@ void biosWriteEntry(fileEntry *fe, lzhHeader *lzhhdr, ulong offset)
 
 	fe->size	 = lzhhdr->originalSize;
 	fe->compSize = lzhhdr->compressedSize;
+	fe->originalSize = lzhhdr->compressedSize + lzhhdr->headerSize;
 	fe->type	 = lzhhdr->fileType;
 	fe->crc		 = lzhhdra->crc;
 	fe->data	 = (void *)new uchar[fe->size];
@@ -609,7 +610,7 @@ bool biosOpenFile(char *fname)
 	biosClearUpdateList();
 
 	// open the image
-	fp = fopen(fname, "rb");
+	fopen_s(&fp, fname, "rb");
 	if (fp == NULL)
 	{
 		MessageBox(hwnd, "Unable to open BIOS image!", "Error", MB_OK);
@@ -638,7 +639,7 @@ bool biosOpenFile(char *fname)
 
 	// looks okay from here...
 	count = biosdata.imageSize / 1024;
-	strcpy(biosdata.fname, fname);
+	strcpy_s(biosdata.fname, sizeof(biosdata.fname), fname);
 
 	// free any already allocated memory
 	biosFreeMemory();
@@ -1019,8 +1020,8 @@ bool biosOpenFile(char *fname)
 	{
 		fe = biosExpandTable();
 		fe->nameLen = strlen("decomp_blk.bin");
-		fe->name = new char[fe->nameLen + 1];
-		strcpy(fe->name, "decomp_blk.bin");
+		fe->name = new char[max(fe->nameLen + 1, 4)];
+		strcpy_s(fe->name, max(fe->nameLen + 1, 4), "decomp_blk.bin");
 
 		fe->size	 = decompBlockSize;
 		fe->compSize = 0;
@@ -1039,8 +1040,8 @@ bool biosOpenFile(char *fname)
 	{
 		fe = biosExpandTable();
 		fe->nameLen = strlen("boot_blk.bin");
-		fe->name = new char[fe->nameLen + 1];
-		strcpy(fe->name, "boot_blk.bin");
+		fe->name = new char[max(fe->nameLen + 1, 4)];
+		strcpy_s(fe->name, max(fe->nameLen + 1, 4), "boot_blk.bin");
 
 		fe->size	 = bootBlockSize;
 		fe->compSize = 0;
@@ -1117,7 +1118,7 @@ bool biosOpen(void)
 	if (sptr != NULL)
 	{
 		sptr++;
-		strcpy(config.lastPath, fname);
+		strcpy_s(config.lastPath, sizeof(config.lastPath), fname);
 
 		sptr = config.lastPath;
 		do
@@ -1142,21 +1143,26 @@ void biosRevert(void)
 	biosOpenFile(biosdata.fname);
 }
 
-void biosWriteComponent(fileEntry *fe, FILE *fp, int fileIdx)
+ulong biosWriteComponent(fileEntry* fe, FILE* fp, int fileIdx, bool compress)
 {
-	uchar *tempbuf;
-	ulong tempbufsize, usedsize;
+	uchar* tempbuf = NULL;
+	ulong tempbufsize = 0, usedsize = 0, bytes_written = 0; // bw only counts lzh data
 	lzhErr err;
-	lzhHeader *lzhhdr;
-	uchar csum, *cptr, ebcount;
-	ulong clen;
+	lzhHeader* lzhhdr = NULL;
+	uchar csum = 0, * cptr = NULL, ebcount = 0;
+	ulong clen = 0;
 
 	// alloc a temp buffer for compression (assume file can't be compressed at all)
-	tempbufsize	= fe->size;
-	tempbuf		= new uchar[tempbufsize + sizeof(lzhHeader) + sizeof(lzhHeaderAfterFilename) + 256];
+	tempbufsize = fe->size;
+	tempbuf = new uchar[tempbufsize + sizeof(lzhHeader) + sizeof(lzhHeaderAfterFilename) + 256];
 
-	// compress this file
-	err = lzhCompress(fe->name, fe->nameLen, fe->data, fe->size, tempbuf, tempbufsize, &usedsize);
+	if (compress) {
+		// compress this file
+		err = lzhCompress(fe->name, fe->nameLen, fe->data, fe->size, tempbuf, tempbufsize, &usedsize);
+	} else {
+		memcpy(tempbuf, fe->data, fe->size);
+		usedsize = fe->size;
+	}
 
 	// update the type and then fix the header sum
 	lzhhdr = (lzhHeader *)tempbuf;
@@ -1165,6 +1171,8 @@ void biosWriteComponent(fileEntry *fe, FILE *fp, int fileIdx)
 
 	// write it to the output
 	fwrite(tempbuf, 1, usedsize, fp);
+	bytes_written += usedsize;
+	
 
 	// calculate checksum over LZH header and compressed data
 	cptr = tempbuf;
@@ -1203,52 +1211,64 @@ void biosWriteComponent(fileEntry *fe, FILE *fp, int fileIdx)
 	if (ebcount > 0)
 	{
 		fputc(0x00, fp);
-
-		if (ebcount > 1)
+		if (ebcount > 1) {
 			fputc(csum, fp);
+		}
 	}
+
+	ulong bs = lzhhdr->headerSize + lzhhdr->compressedSize;
 
 	// free our buffer
 	delete []tempbuf;
+
+	return bs;
 }
 
-bool biosSaveFile(char *fname)
+bool biosSaveFile(char* fname)
 {
-    HWND loaddlg, hwnd_loadtext, hwnd_loadprog;
-	FILE *fp;
+	HWND loaddlg, hwnd_loadtext, hwnd_loadprog;
+	FILE* fp, * tp;
 	int t, pos, count;
-	fileEntry *fe;
+	fileEntry* fe;
 	ulong decompSize, bootSize;
 	uchar ch, csum1, csum2, rcs1, rcs2;
+	ulong new_size = 0, old_size = 0;
 	char buf[257];
 
 	// open the file
-	fp = fopen(fname, "wb");
-	if (fp == NULL)
+	fopen_s(&fp, fname, "wb");
+	fopen_s(&tp, "temp", "wb");
+	if (fp == NULL || tp == NULL)
 	{
 		MessageBox(hwnd, "Unable to write BIOS image!", "Error", MB_OK);
 		return FALSE;
 	}
 
 	// put up our saving dialog and initialize it
-    loaddlg = CreateDialog(hinst, MAKEINTRESOURCE(IDD_WORKING), hwnd, (DLGPROC)LoadSaveProc);
-    
+	loaddlg = CreateDialog(hinst, MAKEINTRESOURCE(IDD_WORKING), hwnd, (DLGPROC)LoadSaveProc);
+
 	SetWindowText(loaddlg, "Saving Image...");
-    hwnd_loadtext = GetDlgItem(loaddlg, IDC_LOADING_TEXT);
-    hwnd_loadprog = GetDlgItem(loaddlg, IDC_LOADING_PROGRESS);
+	hwnd_loadtext = GetDlgItem(loaddlg, IDC_LOADING_TEXT);
+	hwnd_loadprog = GetDlgItem(loaddlg, IDC_LOADING_PROGRESS);
 
 	SetWindowText(hwnd_loadtext, "Writing components...");
 	SendMessage(hwnd_loadprog, PBM_SETRANGE32, 0, biosdata.fileCount);
 
 	// first, flat out write the loaded image to restore extra code/data segments we couldn't load
+	// note: this leaves in place data not overwritten due to shorter files!
 	fwrite(biosdata.imageData, 1, biosdata.imageSize, fp);
+	fwrite(biosdata.imageData, 1, biosdata.imageSize, tp);
 	rewind(fp);
+	rewind(tp);
 
 	// fill in FFh until we reach the start of the file table
 	t = biosdata.tableOffset;
-	while (t--)
+	while (t--) {
 		fputc(0xFF, fp);
+		fputc(0xFF, tp);
+	}
 
+	
 	// iterate through all files with no fixed offset and no special flags, compress them, and write them
 	for (t = 0; t < biosdata.fileCount; t++)
 	{
@@ -1256,7 +1276,23 @@ bool biosSaveFile(char *fname)
 
 		fe = &biosdata.fileTable[t];
 		if ((fe->offset == 0) && (fe->flags == 0))
-			biosWriteComponent(fe, fp, t);
+		{
+			old_size += fe->originalSize;
+			new_size += biosWriteComponent(fe, fp, t, TRUE);
+			biosWriteComponent(fe, tp, t, FALSE);
+		}
+	}
+
+	if (new_size < old_size) {
+		// new file is smaller than original, can happen if more compressable
+		// padd with 0xff
+		size_t diff = old_size - new_size;
+		unsigned char* padd = (unsigned char*)malloc(diff);
+		if (NULL != padd) {
+			memset(padd, 0xff, diff);
+			fwrite(padd, 1, diff, fp);
+			free(padd);
+		} // ignore, we see what happens ...
 	}
 
 	// write the decompression and boot blocks...
@@ -1269,15 +1305,20 @@ bool biosSaveFile(char *fname)
 	bootSize = ((fe == NULL) ? (0) : (fe->size));
 
 	fseek(fp, biosdata.imageSize - (decompSize + bootSize), 0);
+	fseek(tp, biosdata.imageSize - (decompSize + bootSize), 0);
 
 	// write the blocks
 	fe = biosScanForID(TYPEID_DECOMPBLOCK);
-	if (fe != NULL)
+	if (fe != NULL) {
 		fwrite(fe->data, 1, fe->size, fp);
+		fwrite(fe->data, 1, fe->size, tp);
+	}
 
 	fe = biosScanForID(TYPEID_BOOTBLOCK);
-	if (fe != NULL)
+	if (fe != NULL) {
 		fwrite(fe->data, 1, fe->size, fp);
+		fwrite(fe->data, 1, fe->size, tp);
+	}
 
 	// now write components which have a fixed offset
 	SetWindowText(hwnd_loadtext, "Writing fixed components...");
@@ -1290,7 +1331,9 @@ bool biosSaveFile(char *fname)
 		if (fe->offset != 0)
 		{
 			fseek(fp, fe->offset, SEEK_SET);
-			biosWriteComponent(fe, fp, -1);
+			biosWriteComponent(fe, fp, -1, TRUE);
+			fseek(tp, fe->offset, SEEK_SET);
+			biosWriteComponent(fe, fp, -1, FALSE);
 		}
 	}
 
@@ -1302,8 +1345,11 @@ bool biosSaveFile(char *fname)
 		{
 			// re-open the file in read-only mode
 			fclose(fp);
-			fp = fopen(fname, "rb");
+			fopen_s(&fp, fname, "rb");
 
+			if (NULL == fp) {
+				goto end;
+			}
 			// calculate the position of the checksum bytes
 			pos = ((biosdata.imageSize - (decompSize + bootSize)) & 0xFFFFF000) + 0xFFE;
 
@@ -1330,8 +1376,9 @@ bool biosSaveFile(char *fname)
 
 			// re-open the file in read-write mode
 			fclose(fp);
-			fp = fopen(fname, "r+b");
+			fopen_s(&fp, fname, "r+b");
 
+			if (NULL == fp) goto end;
 			// seek to the checksum position
 			fseek(fp, pos, 0);
 
@@ -1345,7 +1392,9 @@ bool biosSaveFile(char *fname)
 
 	// close the file
 	fclose(fp);
+	fclose(tp);
 
+end:
 	// kill our window
     DestroyWindow(loaddlg);
 
@@ -1418,7 +1467,7 @@ bool biosSaveAs(void)
 	// if successful, update the filename with the new one
 	if (ret == TRUE)
 	{
-		strcpy(biosdata.fname, fname);
+		strcpy_s(biosdata.fname, sizeof(biosdata.fname), fname);
 		biosTitleUpdate();
 	}
 
@@ -1924,7 +1973,7 @@ void biosUpdateCurrentDialog(void)
 
 				curFileEntry->nameLen	= len;
 				curFileEntry->name		= new char[curFileEntry->nameLen + 1];
-				strcpy(curFileEntry->name, buf);
+				strcpy_s(curFileEntry->name, sizeof(curFileEntry->name), buf);
 
 				biosSetModified(TRUE);
 			}
@@ -1933,9 +1982,10 @@ void biosUpdateCurrentDialog(void)
 		hedit = GetDlgItem(hModDlgWnd, IDC_FILE_ID);
 		if (IsWindow(hedit))
 		{
-			GetWindowText(hedit, buf, 256);
-			sscanf(buf, "%04X", &data16);
 
+			GetWindowText(hedit, buf, 256);
+			sscanf_s(buf, "%hX", &data16);
+			
 			// compare data
 			if (data16 != curFileEntry->type)
 			{
@@ -1951,7 +2001,7 @@ void biosUpdateCurrentDialog(void)
 		if (IsWindow(hedit))
 		{
 			GetWindowText(hedit, buf, 256);
-			sscanf(buf, "%08X", &data);
+			sscanf_s(buf, "%08X", &data);
 
 			// compare data
 			if (data != curFileEntry->offset)
@@ -2182,16 +2232,18 @@ void biosItemChanged(LPNMTREEVIEW lpnmtv)
 
 void biosTempCompressData(void *fname, ulong fnameLen, void *data, ulong size, ulong *compSize, ushort *crc)
 {
-	uchar *tempbuf;
+	uchar *tempbuf = NULL;
 	ulong tempbufsize, usedsize;
 	lzhHeader *lzhhdr;
 	lzhHeaderAfterFilename *lzhhdra;
 
 	// do a temporary compression on this file to determine its compressed size and other stuff
 	tempbufsize	= size;
-	tempbuf		= new uchar[tempbufsize + sizeof(lzhHeader) + sizeof(lzhHeaderAfterFilename) + 256];
+	tempbuf		= new uchar[tempbufsize + sizeof(lzhHeader) + sizeof(lzhHeaderAfterFilename) + 1024];
 	lzhhdr		= (lzhHeader *)tempbuf;
 	lzhhdra		= (lzhHeaderAfterFilename *) ((lzhhdr->filename) + lzhhdr->filenameLen);
+
+	ZeroMemory(tempbuf, tempbufsize);
 
 	lzhCompress(fname, fnameLen, data, size, tempbuf, tempbufsize, &usedsize);
 
@@ -2210,12 +2262,15 @@ bool biosAddComponent(char *fname, ushort id, ulong offset)
 	bool failedFit;
 
 	// open the file
-	fp = fopen(fname, "rb");
+	fopen_s(&fp, fname, "rb");
 	if (fp == NULL)
 		return FALSE;
 
+	ZeroMemory(name, sizeof(name));
+	ZeroMemory(ext, sizeof(ext));
+
 	// get just the name of this file
-	_splitpath(fname, NULL, NULL, name, ext);
+	_splitpath_s(fname, NULL, 0, NULL, 0, name, sizeof(name), ext, sizeof(ext));
 	snprintf(fname,  sizeof(fname), "%s%s", name, ext);
 
 	// get the size too
@@ -2237,8 +2292,8 @@ bool biosAddComponent(char *fname, ushort id, ulong offset)
 	fe = biosExpandTable();
 
 	fe->nameLen = strlen(fname);
-	fe->name = new char[fe->nameLen + 1];
-	strcpy(fe->name, fname);
+	fe->name = new char[max(fe->nameLen + 1, 4)];
+	strcpy_s(fe->name, sizeof(fe->name), fname);
 
 	fe->size	 = size;
 	fe->compSize = 0;
@@ -2345,7 +2400,7 @@ BOOL APIENTRY InsertProc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
 				case IDOK:
 					// first, get our ID and check it
 					GetDlgItemText(hdlg, IDC_INSERT_ID, buf, 256);
-					sscanf(buf, "%04X", &id);
+					sscanf_s(buf, "%hX", &id);
 
 					if ((buf[0] == 0) || (id == 0))
 					{
@@ -2371,7 +2426,7 @@ BOOL APIENTRY InsertProc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 					// next, get the offset and check it
 					GetDlgItemText(hdlg, IDC_INSERT_OFFSET, buf, 256);
-					sscanf(buf, "%08X", &offset);
+					sscanf_s(buf, "%08X", &offset);
 
 					if (offset > biosdata.imageSize)
 					{
@@ -2433,12 +2488,15 @@ void biosReplaceFile(char *fname)
 	awdbeItem *item;
 
 	// open the file
-	fp = fopen(fname, "rb");
+	fopen_s(&fp, fname, "rb");
 	if (fp == NULL)
 		return;
 
+	ZeroMemory(name, sizeof(name));
+	ZeroMemory(ext, sizeof(ext));
+
 	// get just the name of this file
-	_splitpath(fname, NULL, NULL, name, ext);
+	_splitpath_s(fname, NULL, 0, NULL, 0, name, sizeof(name), ext, sizeof(ext));
 	snprintf(fname,  sizeof(fname), "%s%s", name, ext);
 
 	// get the size too
@@ -2495,8 +2553,8 @@ void biosReplaceFile(char *fname)
 	delete []curFileEntry->data;
 
 	curFileEntry->nameLen = strlen(fname);
-	curFileEntry->name = new char[curFileEntry->nameLen + 1];
-	strcpy(curFileEntry->name, fname);
+	curFileEntry->name = new char[max(curFileEntry->nameLen + 1, 4)];
+	strcpy_s(curFileEntry->name, sizeof(curFileEntry->name), fname);
 
 	// cheat and just use tempbuf as the new pointer here (just make sure we don't delete it in this func!)
 	curFileEntry->data = tempbuf;
@@ -2604,7 +2662,7 @@ void biosExtract(void)
 		return;
 
 	// make a filename for this component
-	strcpy(fname, curFileEntry->name);
+	strcpy_s(fname, sizeof(fname), curFileEntry->name);
 
 	// display the save dialog
 	ZeroMemory(&ofn, sizeof(OPENFILENAME));
@@ -2633,7 +2691,7 @@ void biosExtract(void)
 		return;
 
 	// open the file
-	fp = fopen(fname, "wb");
+	fopen_s(&fp, fname, "wb");
 
 	// write out the file
 	fwrite(curFileEntry->data, 1, curFileEntry->size, fp);
@@ -2694,7 +2752,7 @@ void biosExtractAll(void)
 					snprintf(fname, 256, "%s\\%s", fullpath, fe->name);
 
 					// write the data
-					fp = fopen(fname, "wb");
+					fopen_s(&fp, fname, "wb");
 					if (fp != NULL)
 					{
 						fwrite(fe->data, 1, fe->size, fp);
@@ -2865,7 +2923,7 @@ void biosHexEdit(void)
 	snprintf(fname, 256, "%s\\%s", fullTempPath, curFileEntry->name);
 
 	// write out the data to our temporary path
-	fp = fopen(fname, "wb");
+	fopen_s(&fp, fname, "wb");
 	fwrite(curFileEntry->data, 1, curFileEntry->size, fp);
 	fclose(fp);
 
@@ -2945,9 +3003,13 @@ void biosAddToUpdateList(char *fname)
 {
 	updateEntry *ue, *ui;
 	char path[256], name[256], ext[256], fullname[512];
+	ZeroMemory(path, sizeof(path));
+	ZeroMemory(name, sizeof(name));
+	ZeroMemory(ext, sizeof(ext));
 
 	// split up our fname into path/name components
-	_splitpath(fname, NULL, path, name, ext);
+	_splitpath_s(fname, NULL, 0, path, sizeof(path), name, sizeof(name), ext, sizeof(ext));
+
 	snprintf(fullname, 512, "%s%s", name, ext);
 
 	// make sure this entry is not already in the update list
@@ -2962,11 +3024,11 @@ void biosAddToUpdateList(char *fname)
 
 	// create a new entry
 	ue		  = new updateEntry;
-	ue->path  = new char[strlen(path) + 1];
-	ue->fname = new char[strlen(fullname) + 1];
+	ue->path  = new char[max(strlen(path) + 1, 4)];
+	ue->fname = new char[max(strlen(fullname) + 1, 4)];
 
-	strcpy(ue->path, path);
-	strcpy(ue->fname, fullname);
+	strcpy_s(ue->path, sizeof(ue->path), path);
+	strcpy_s(ue->fname, sizeof(ue->fname), fullname);
 
 	ue->lastWrite = biosGetLastWriteTime(ue);
 	ue->next	  = NULL;

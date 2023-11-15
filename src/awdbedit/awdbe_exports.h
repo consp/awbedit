@@ -33,6 +33,7 @@ typedef struct
 
 	ulong	 size;					// size of this file
 	ulong	 compSize;				// the compressed size this file had
+	ulong	 originalSize;
 	ushort	 type;					// type ID/magic of this file
 	ushort	 crc;					// the crc this file had
 	bool	 crcOK;					// TRUE if the file passed CRC on decompression, FALSE if not

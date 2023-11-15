@@ -1,19 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.34114.132
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34221.43
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "awdbe_builtins", "awdbe_builtins\builtins.vcxproj", "{B04DB3A8-4D5B-4664-828C-5C08EF2D74E4}"
-	ProjectSection(ProjectDependencies) = postProject
-		{C8080D13-AB2F-4B76-B1C0-AD8D398F105A} = {C8080D13-AB2F-4B76-B1C0-AD8D398F105A}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "awdbe_wavedit", "awdbe_wavedit\awdbe_wavedit.vcxproj", "{DEE0E366-3547-44BF-9276-50459735C264}"
-	ProjectSection(ProjectDependencies) = postProject
-		{C8080D13-AB2F-4B76-B1C0-AD8D398F105A} = {C8080D13-AB2F-4B76-B1C0-AD8D398F105A}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "awdbedit", "awdbedit\awdbedit.vcxproj", "{C8080D13-AB2F-4B76-B1C0-AD8D398F105A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B04DB3A8-4D5B-4664-828C-5C08EF2D74E4} = {B04DB3A8-4D5B-4664-828C-5C08EF2D74E4}
+		{DEE0E366-3547-44BF-9276-50459735C264} = {DEE0E366-3547-44BF-9276-50459735C264}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -58,7 +58,7 @@ popupMenu::~popupMenu()
 
 void popupMenu::drawPopupDialog(void)
 {
-	RECT rc, rc2;
+	RECT rc;
 	int index = curItem - lowBound;
 
 	// get the rect for this menu button

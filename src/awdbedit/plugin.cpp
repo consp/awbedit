@@ -201,8 +201,8 @@ void pluginAdd(char *fname, HINSTANCE hInst, awdbeFuncTable *ftbl)
 		fe = fe->next;
 	}
 
-	fe->fname = new char[strlen(fname) + 1];
-	strcpy(fe->fname, fname);
+	fe->fname = new char[max(strlen(fname) + 1, 4)];
+	strcpy_s(fe->fname, max(strlen(fname) + 1, 4), fname);
 	fe->hInst	= hInst;
 	fe->functbl	= ftbl;
 	fe->next	= NULL;

@@ -6,10 +6,19 @@ The latest release is compiled against the last Windows 10 SDK, should work on m
 
 # fixes
 
+v1.0.3
+* Fixed tab order in IRQ routing edit
+* Updated most unsafe string and file operations
+* Fixed bug where if the new compressed blob would be smaller the original data would stick in place after the original.tmp and cause decompression errors. Depending on the decryption algorithm this might be the cause of corrupted bioses.
+
+v1.0.2
 * User can now open both 4.50PG and 4.51PG bioses in the same version. The EPA logo does not work in 4.50PG.
 * User can edit all 4 PCI IRQ routing tables even if the 4th one is not present (is marked as IRQ 0xFF)
 * User can now edit all values of the PCI IRQ routing table, even if they originally had less than 3 characters.
 * Fixed a bug where compiling with the windows SDK later than 7 will result in the menu bar not showing.
+
+v1.0.1
+* Changed 1 to 0 to allow reading of 4.50PG bioses (no economies were harmed)
 
 I guess the cleanup work has some more bugs but so far I have not encountered them (yet).
 

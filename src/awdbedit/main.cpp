@@ -413,17 +413,17 @@ void createControls(HWND hwnd)
 		{ 0, ID_FILE_OPEN,			TBSTATE_ENABLED,	TBSTYLE_BUTTON,	0, NULL },
 		{ 0, ID_FILE_SAVE,			0,					TBSTYLE_BUTTON,	0, NULL },
 		{ 0, ID_FILE_PROPERTIES,	0,					TBSTYLE_BUTTON,	0, NULL },
-		{ 0, 0,						TBSTATE_ENABLED,	TBSTYLE_SEP,	0, -1 },
+		{ 0, 0,						TBSTATE_ENABLED,	TBSTYLE_SEP,	0, (byte) -1},
 		{ 0, ID_ACTION_INSERT,		0,					TBSTYLE_BUTTON,	0, NULL },
 		{ 0, ID_ACTION_REPLACE,		0,					TBSTYLE_BUTTON,	0, NULL },
 		{ 0, ID_ACTION_EXTRACT,		0,					TBSTYLE_BUTTON,	0, NULL },
 		{ 0, ID_ACTION_EXTRACT_ALL,	0,					TBSTYLE_BUTTON,	0, NULL },
 		{ 0, ID_ACTION_REMOVE,		0,					TBSTYLE_BUTTON,	0, NULL },
-		{ 0, 0,						TBSTATE_ENABLED,	TBSTYLE_SEP,	0, -1 },
+		{ 0, 0,						TBSTATE_ENABLED,	TBSTYLE_SEP,	0, (byte) -1 },
 		{ 0, ID_ACTION_HEXEDIT,		0,					TBSTYLE_BUTTON,	0, NULL },
-		{ 0, 0,						TBSTATE_ENABLED,	TBSTYLE_SEP,	0, -1 },
+		{ 0, 0,						TBSTATE_ENABLED,	TBSTYLE_SEP,	0, (byte) -1 },
 		{ 0, ID_OPTION_CONFIG,		TBSTATE_ENABLED,	TBSTYLE_BUTTON,	0, NULL },
-		{ 0, 0,						TBSTATE_ENABLED,	TBSTYLE_SEP,	0, -1 },
+		{ 0, 0,						TBSTATE_ENABLED,	TBSTYLE_SEP,	0, (byte) -1 },
 		{ 0, ID_FILE_EXIT,			TBSTATE_ENABLED,	TBSTYLE_BUTTON,	0, NULL }
 	};
 
@@ -687,7 +687,7 @@ int handleMenuPopup(HMENU menu)
 			{
 				// store the skin in the list
 				skinList[t].id = ID_SELECT_SKIN0 + t;
-				strcpy(skinList[t].fname, fd.name);
+				strcpy_s(skinList[t].fname, sizeof(skinList[t].fname), fd.name);
 
 				// add it to the menu
 				if (!_stricmp(config.lastSkin, skinList[t].fname))
@@ -757,7 +757,12 @@ BOOL LoadBitmapFromBMPFile(LPTSTR szFileName, HBITMAP *phBitmap, HPALETTE *phPal
 			GetDIBColorTable(hMemDC, 0, 256, rgb);
 
 			// Create a palette from the color table
-			pLogPal = (LOGPALETTE *)malloc(sizeof(LOGPALETTE) + (256 * sizeof(PALETTEENTRY)));
+			pLogPal = (LOGPALETTE *)calloc(sizeof(LOGPALETTE) + (256 * sizeof(PALETTEENTRY)), 1);
+
+			if (NULL == pLogPal) {
+				return FALSE;
+			}
+
 			pLogPal->palVersion = 0x300;
 			pLogPal->palNumEntries = 256;
 			
@@ -816,7 +821,7 @@ bool selectSkin(char *fname)
 	globals.hSkin = hbmp;
 
 	// save the name too
-	strcpy(config.lastSkin, fname);
+	strcpy_s(config.lastSkin, sizeof(config.lastSkin),  fname);
 
 	return TRUE;
 }
@@ -920,16 +925,16 @@ void updateMRU(void)
 		{
 			// it is, so move the remaining items up the list
 			for (x = t; x < 3; x++)
-				strcpy(config.recentFile[x], config.recentFile[x + 1]);
+				strcpy_s(config.recentFile[x], sizeof(config.recentFile[x]),  config.recentFile[x + 1]);
 		}
 	}
 
 	// now, move all the items down one
 	for (t = 3; t >= 1; t--)
-		strcpy(config.recentFile[t], config.recentFile[t - 1]);
+		strcpy_s(config.recentFile[t], sizeof(config.recentFile[t]),  config.recentFile[t - 1]);
 
 	// copy the current one into the top
-	strcpy(config.recentFile[0], biosGetFilename());
+	strcpy_s(config.recentFile[0], sizeof(config.recentFile[0]), biosGetFilename());
 }
 
 LRESULT APIENTRY WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -1255,9 +1260,9 @@ bool getExePath(char *cmdline, char *path, int len)
 
 	// check for a quote (") and copy the command line into path
 	if (cmdline[0] == '\"')
-		strcpy(path, cmdline + 1);
+		strcpy_s(path,len, cmdline + 1);
 	else
-		strcpy(path, cmdline);
+		strcpy_s(path, len, cmdline);
 
 	// backtrace path until we hit a backslash (\)
 	ptr = path + strlen(path);
@@ -1309,12 +1314,14 @@ void cleanTempPath(void)
 
 void makeTempPath(void)
 {
-	char *tmp;
+	char *tmp = NULL;
+	size_t tmp_len = 0;
+	errno_t err;
 
 	// try to get the system temp path
-	tmp = getenv("Temp");
-	if (tmp == NULL)
-		tmp = "C:\\TEMP";
+
+	err = _dupenv_s(&tmp, &tmp_len, "Temp");
+	if (tmp == NULL || err) tmp = "C:\\TEMP";
 
 	// make sure it exists (it really should...)
 	_mkdir(tmp);

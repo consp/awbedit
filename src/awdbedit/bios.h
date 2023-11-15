@@ -27,7 +27,7 @@
 #define BIOS_H
 
 #define APP_NAME				"Award BIOS Editor"
-#define APP_REV					"1.0"
+#define APP_REV					"1.0.3"
 #define APP_VERSION				APP_NAME " " APP_REV
 
 
