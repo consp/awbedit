@@ -1224,6 +1224,8 @@ ulong biosWriteComponent(fileEntry* fe, FILE* fp, int fileIdx, bool compress)
 	return bs;
 }
 
+#define DEBUG(blob) 
+
 bool biosSaveFile(char* fname)
 {
 	HWND loaddlg, hwnd_loadtext, hwnd_loadprog;
@@ -1237,7 +1239,7 @@ bool biosSaveFile(char* fname)
 
 	// open the file
 	fopen_s(&fp, fname, "wb");
-	fopen_s(&tp, "temp", "wb");
+	DEBUG(fopen_s(&tp, "temp", "wb");)
 	if (fp == NULL || tp == NULL)
 	{
 		MessageBox(hwnd, "Unable to write BIOS image!", "Error", MB_OK);
@@ -1257,15 +1259,15 @@ bool biosSaveFile(char* fname)
 	// first, flat out write the loaded image to restore extra code/data segments we couldn't load
 	// note: this leaves in place data not overwritten due to shorter files!
 	fwrite(biosdata.imageData, 1, biosdata.imageSize, fp);
-	fwrite(biosdata.imageData, 1, biosdata.imageSize, tp);
+	DEBUG(fwrite(biosdata.imageData, 1, biosdata.imageSize, tp);)
 	rewind(fp);
-	rewind(tp);
+	DEBUG(rewind(tp);)
 
 	// fill in FFh until we reach the start of the file table
 	t = biosdata.tableOffset;
 	while (t--) {
 		fputc(0xFF, fp);
-		fputc(0xFF, tp);
+		DEBUG(fputc(0xFF, tp);)
 	}
 
 	
@@ -1279,7 +1281,7 @@ bool biosSaveFile(char* fname)
 		{
 			old_size += fe->originalSize;
 			new_size += biosWriteComponent(fe, fp, t, TRUE);
-			biosWriteComponent(fe, tp, t, FALSE);
+			DEBUG(biosWriteComponent(fe, tp, t, FALSE);)
 		}
 	}
 
@@ -1305,19 +1307,19 @@ bool biosSaveFile(char* fname)
 	bootSize = ((fe == NULL) ? (0) : (fe->size));
 
 	fseek(fp, biosdata.imageSize - (decompSize + bootSize), 0);
-	fseek(tp, biosdata.imageSize - (decompSize + bootSize), 0);
+	DEBUG(fseek(tp, biosdata.imageSize - (decompSize + bootSize), 0);)
 
 	// write the blocks
 	fe = biosScanForID(TYPEID_DECOMPBLOCK);
 	if (fe != NULL) {
 		fwrite(fe->data, 1, fe->size, fp);
-		fwrite(fe->data, 1, fe->size, tp);
+		DEBUG(fwrite(fe->data, 1, fe->size, tp);)
 	}
 
 	fe = biosScanForID(TYPEID_BOOTBLOCK);
 	if (fe != NULL) {
 		fwrite(fe->data, 1, fe->size, fp);
-		fwrite(fe->data, 1, fe->size, tp);
+		DEBUG(fwrite(fe->data, 1, fe->size, tp);)
 	}
 
 	// now write components which have a fixed offset
@@ -1332,8 +1334,8 @@ bool biosSaveFile(char* fname)
 		{
 			fseek(fp, fe->offset, SEEK_SET);
 			biosWriteComponent(fe, fp, -1, TRUE);
-			fseek(tp, fe->offset, SEEK_SET);
-			biosWriteComponent(fe, fp, -1, FALSE);
+			DEBUG(fseek(tp, fe->offset, SEEK_SET);)
+			DEBUG(biosWriteComponent(fe, fp, -1, FALSE);)
 		}
 	}
 
@@ -1392,7 +1394,7 @@ bool biosSaveFile(char* fname)
 
 	// close the file
 	fclose(fp);
-	fclose(tp);
+	DEBUG(fclose(tp);)
 
 end:
 	// kill our window
